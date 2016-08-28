@@ -115,7 +115,8 @@ public struct Cache<T: JSONSerializable> {
     }
     
     private func unarchiveObjectAtPath(path: String) -> CacheableObject? {
-        return NSKeyedUnarchiver.unarchiveObjectWithFile(path) as? CacheableObject
+        
+        return NSKeyedUnarchiver.safelyUnarchiveObjectAtPath(path) as? CacheableObject
     }
 
     
