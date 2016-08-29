@@ -10,7 +10,7 @@ import Foundation
 
 private let domainIdentifier = "com.jcbator.cache"
 
-public struct Cache<T: JSONSerializable> {
+public struct Cache<T: Serializable> {
     
     public let name: String
     public let cacheDirectory: NSURL
@@ -54,7 +54,7 @@ public struct Cache<T: JSONSerializable> {
     // MARK: - Reading
 
     public func valueForKey(key: String, allowingExpiredResult: Bool = false) -> T? {
-        var value: CacheableValue<T>?
+        var value: Cacheable<T>?
         
         dispatch_sync(queue) {
             value = self.read(key)
@@ -95,18 +95,20 @@ public struct Cache<T: JSONSerializable> {
         }
     }
     
-    private func read(key: String) -> CacheableValue<T>? {
+    private func read(key: String) -> Cacheable<T>? {
         if  let object = cache.objectForKey(key) as? CacheableObject,
-            let json = object.json,
-            let value = CacheableValue<T>(json: json) {
+            let serialized = object.serialized,
+            let value = Cacheable<T>(serialized: serialized) {
             
             return value
         }
         
         if  let path = urlForKey(key).path where fileManager.fileExistsAtPath(path),
             let object = unarchiveObjectAtPath(path),
-            let json = object.json,
-            let value = CacheableValue<T>(json: json) {
+            let serialized = object.serialized,
+            let value = Cacheable<T>(serialized: serialized) {
+            
+            cache.setObject(object, forKey: key)
             
             return value
         }
@@ -123,8 +125,8 @@ public struct Cache<T: JSONSerializable> {
     // MARK: - Writing
     
     public func setValue(value: T, forKey key: String, expiration: Expiration = .Never) {
-        let cacheableValue = CacheableValue(value: value, expirationDate: expiration.expirationDate)
-        let cacheableObject = CacheableObject(value: cacheableValue)
+        let cacheable = Cacheable(value: value, expirationDate: expiration.expirationDate)
+        let cacheableObject = CacheableObject(serializable: cacheable)
         
         self.write(cacheableObject, forKey: key)
     }
@@ -172,7 +174,7 @@ public struct Cache<T: JSONSerializable> {
         }
     }
 
-    private func removeFromDisk(key: String) {
+    internal func removeFromDisk(key: String) {
         let url = self.urlForKey(key)
         _ = try? self.fileManager.removeItemAtURL(url)
     }
@@ -195,5 +197,23 @@ public struct Cache<T: JSONSerializable> {
     private func sanitize(key: String) -> String {
         return key.stringByReplacingOccurrencesOfString("[^a-zA-Z0-9_]+", withString: "-", options: .RegularExpressionSearch, range: nil)
     }
+    
+    
+    // MARK: - Testing Helpers
+    
+    public func __removeFromMemory(key: String) {
+        cache.removeObjectForKey(key)
+    }
 
+}
+
+public struct CacheCleaner {
+    
+    public static func purgeCache() {
+        let url = NSFileManager.defaultManager().URLsForDirectory(.CachesDirectory, inDomains: .UserDomainMask).first!
+        let cacheDirectory = url.URLByAppendingPathComponent(domainIdentifier)
+        
+        _ = try? NSFileManager.defaultManager().removeItemAtURL(cacheDirectory)
+    }
+    
 }

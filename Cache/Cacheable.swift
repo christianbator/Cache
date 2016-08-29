@@ -8,10 +8,13 @@
 
 import Foundation
 
-public struct CacheableValue<T: JSONSerializable>: JSONSerializable {
+private let valueKey = "value"
+private let expirationDateKey = "expiration_date"
+
+public struct Cacheable<T: Serializable> {
     
-    public let value: JSONSerializable
-    private let expirationDate: NSDate
+    public let value: Serializable
+    public let expirationDate: NSDate
     
     public var expired: Bool {
         return expirationDate.isInThePast
@@ -22,64 +25,70 @@ public struct CacheableValue<T: JSONSerializable>: JSONSerializable {
         self.expirationDate = expirationDate
     }
     
-    public init?(json: JSON) {
+}
+
+extension Cacheable: Serializable {
+    
+    public init?(serialized: Serialized) {
         guard
-            let valueJSON = json["value"] as? JSON,
-            let jsonValue = T(json: valueJSON),
-            let jsonExpiration = json["expiration_date"] as? NSTimeInterval else {
+            let serializedValue = serialized[valueKey] as? Serialized,
+            let value = T(serialized: serializedValue),
+            let serializedExpiration = serialized[expirationDateKey] as? NSTimeInterval else {
                 
-            return nil
+                return nil
         }
         
-        value = jsonValue
-        expirationDate =  NSDate(timeIntervalSince1970: jsonExpiration)
+        self.value = value
+        self.expirationDate =  NSDate(timeIntervalSince1970: serializedExpiration)
     }
     
-    public func toJSON() -> JSON {
-        let json: JSON = [
-            "value": value.toJSON(),
-            "expiration_date" : expirationDate.timeIntervalSince1970
+    public func serialize() -> Serialized {
+        
+        let serialized: Serialized = [
+            valueKey : value.serialize(),
+            expirationDateKey : expirationDate.timeIntervalSince1970
         ]
-
-        return json
+        
+        return serialized
     }
-    
+
 }
 
 @objc class CacheableObject: NSObject {
-    var json: JSON?
     
-    init(value: JSONSerializable) {
-        json = value.toJSON()
+    var serialized: Serialized?
+    
+    init(serializable: Serializable) {
+        serialized = serializable.serialize()
     }
 
     required init(coder aDecoder: NSCoder) {
         do {
-            
-        if  let jsonString = aDecoder.decodeObjectForKey("json") as? String,
-            let jsonData = jsonString.dataUsingEncoding(NSUTF8StringEncoding),
-            let json = try NSJSONSerialization.JSONObjectWithData(jsonData, options: .AllowFragments) as? JSON {
-            
-                self.json = json
+            if  let serializedString = aDecoder.decodeObjectForKey(valueKey) as? String,
+                let serializedData = serializedString.dataUsingEncoding(NSUTF8StringEncoding),
+                let serialized = try NSJSONSerialization.JSONObjectWithData(serializedData, options: .AllowFragments) as? Serialized {
+                
+                self.serialized = serialized
             }
         }
         catch { }
     }
     
     func encodeWithCoder(aCoder: NSCoder) {
-        guard let json = json else {
+        guard let serialized = serialized else {
             return
         }
         
         do {
-            let jsonData = try NSJSONSerialization.dataWithJSONObject(json, options: .PrettyPrinted)
+            let serializedData = try NSJSONSerialization.dataWithJSONObject(serialized, options: .PrettyPrinted)
             
-            if let jsonString = String(data: jsonData, encoding: NSUTF8StringEncoding) {
-                aCoder.encodeObject(jsonString, forKey: "json")
+            if let serializedString = String(data: serializedData, encoding: NSUTF8StringEncoding) {
+                aCoder.encodeObject(serializedString, forKey: valueKey)
             }
         }
         catch { }
     }
+    
 }
 
 
