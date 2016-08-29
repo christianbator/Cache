@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import Cache
+@testable import Cache
 
 class CacheTests: XCTestCase {
     
