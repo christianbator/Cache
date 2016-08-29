@@ -201,7 +201,7 @@ public struct Cache<T: Serializable> {
     
     // MARK: - Testing Helpers
     
-    public func __removeFromMemory(key: String) {
+    internal func __removeFromMemory(key: String) {
         cache.removeObjectForKey(key)
     }
 
