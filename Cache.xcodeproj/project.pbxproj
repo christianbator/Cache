@@ -7,28 +7,53 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		24037CFB1D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.h in Headers */ = {isa = PBXBuildFile; fileRef = 24037CF91D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		24037CFC1D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.m in Sources */ = {isa = PBXBuildFile; fileRef = 24037CFA1D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.m */; };
+		240B144B1D74A11200E45D98 /* CacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240B144A1D74A11200E45D98 /* CacheTests.swift */; };
+		240B144D1D74A11200E45D98 /* Cache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24DF7A991D7361B800D3547B /* Cache.framework */; };
+		240B14541D74A1D200E45D98 /* IceCreamFlavor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240B14531D74A1D200E45D98 /* IceCreamFlavor.swift */; };
+		24DB6BE81D749A3D00C5F149 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BE31D749A3D00C5F149 /* Cache.swift */; };
+		24DB6BE91D749A3D00C5F149 /* Cacheable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BE41D749A3D00C5F149 /* Cacheable.swift */; };
+		24DB6BEA1D749A3D00C5F149 /* NSDate+Expiration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BE51D749A3D00C5F149 /* NSDate+Expiration.swift */; };
+		24DB6BEB1D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DB6BE61D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		24DB6BEC1D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BE71D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m */; };
+		24DB6BEE1D749A4700C5F149 /* Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BED1D749A4700C5F149 /* Serializable.swift */; };
 		24DF7A9D1D7361B800D3547B /* Cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DF7A9C1D7361B800D3547B /* Cache.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		24DF7AC71D7391E900D3547B /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DF7AC31D7391E900D3547B /* Cache.swift */; };
-		24DF7AC81D7391E900D3547B /* Cacheable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DF7AC41D7391E900D3547B /* Cacheable.swift */; };
-		24DF7AC91D7391E900D3547B /* JSONSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DF7AC51D7391E900D3547B /* JSONSerializable.swift */; };
-		24DF7ACA1D7391E900D3547B /* NSDate+Expiration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DF7AC61D7391E900D3547B /* NSDate+Expiration.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		240B144E1D74A11200E45D98 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 24DF7A901D7361B800D3547B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 24DF7A981D7361B800D3547B;
+			remoteInfo = Cache;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		24037CF91D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSKeyedUnarchiver+Safe.h"; sourceTree = "<group>"; };
-		24037CFA1D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSKeyedUnarchiver+Safe.m"; sourceTree = "<group>"; };
+		240B14481D74A11200E45D98 /* CacheTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CacheTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		240B144A1D74A11200E45D98 /* CacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheTests.swift; sourceTree = "<group>"; };
+		240B144C1D74A11200E45D98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		240B14531D74A1D200E45D98 /* IceCreamFlavor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IceCreamFlavor.swift; sourceTree = "<group>"; };
+		24DB6BE31D749A3D00C5F149 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
+		24DB6BE41D749A3D00C5F149 /* Cacheable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cacheable.swift; sourceTree = "<group>"; };
+		24DB6BE51D749A3D00C5F149 /* NSDate+Expiration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDate+Expiration.swift"; sourceTree = "<group>"; };
+		24DB6BE61D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSKeyedUnarchiver+Safe.h"; sourceTree = "<group>"; };
+		24DB6BE71D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSKeyedUnarchiver+Safe.m"; sourceTree = "<group>"; };
+		24DB6BED1D749A4700C5F149 /* Serializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Serializable.swift; sourceTree = "<group>"; };
 		24DF7A991D7361B800D3547B /* Cache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Cache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		24DF7A9C1D7361B800D3547B /* Cache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Cache.h; sourceTree = "<group>"; };
 		24DF7A9E1D7361B800D3547B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		24DF7AC31D7391E900D3547B /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
-		24DF7AC41D7391E900D3547B /* Cacheable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cacheable.swift; sourceTree = "<group>"; };
-		24DF7AC51D7391E900D3547B /* JSONSerializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONSerializable.swift; sourceTree = "<group>"; };
-		24DF7AC61D7391E900D3547B /* NSDate+Expiration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDate+Expiration.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		240B14451D74A11200E45D98 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				240B144D1D74A11200E45D98 /* Cache.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		24DF7A951D7361B800D3547B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -39,10 +64,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		240B14491D74A11200E45D98 /* CacheTests */ = {
+			isa = PBXGroup;
+			children = (
+				240B14531D74A1D200E45D98 /* IceCreamFlavor.swift */,
+				240B144A1D74A11200E45D98 /* CacheTests.swift */,
+				240B144C1D74A11200E45D98 /* Info.plist */,
+			);
+			path = CacheTests;
+			sourceTree = "<group>";
+		};
 		24DF7A8F1D7361B800D3547B = {
 			isa = PBXGroup;
 			children = (
 				24DF7A9B1D7361B800D3547B /* Cache */,
+				240B14491D74A11200E45D98 /* CacheTests */,
 				24DF7A9A1D7361B800D3547B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -51,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				24DF7A991D7361B800D3547B /* Cache.framework */,
+				240B14481D74A11200E45D98 /* CacheTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -58,12 +95,12 @@
 		24DF7A9B1D7361B800D3547B /* Cache */ = {
 			isa = PBXGroup;
 			children = (
-				24DF7AC31D7391E900D3547B /* Cache.swift */,
-				24DF7AC41D7391E900D3547B /* Cacheable.swift */,
-				24DF7AC51D7391E900D3547B /* JSONSerializable.swift */,
-				24DF7AC61D7391E900D3547B /* NSDate+Expiration.swift */,
-				24037CF91D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.h */,
-				24037CFA1D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.m */,
+				24DB6BE31D749A3D00C5F149 /* Cache.swift */,
+				24DB6BED1D749A4700C5F149 /* Serializable.swift */,
+				24DB6BE41D749A3D00C5F149 /* Cacheable.swift */,
+				24DB6BE51D749A3D00C5F149 /* NSDate+Expiration.swift */,
+				24DB6BE61D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h */,
+				24DB6BE71D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m */,
 				24DF7A9C1D7361B800D3547B /* Cache.h */,
 				24DF7A9E1D7361B800D3547B /* Info.plist */,
 			);
@@ -77,7 +114,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				24037CFB1D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.h in Headers */,
+				24DB6BEB1D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h in Headers */,
 				24DF7A9D1D7361B800D3547B /* Cache.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -85,6 +122,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		240B14471D74A11200E45D98 /* CacheTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 240B14501D74A11200E45D98 /* Build configuration list for PBXNativeTarget "CacheTests" */;
+			buildPhases = (
+				240B14441D74A11200E45D98 /* Sources */,
+				240B14451D74A11200E45D98 /* Frameworks */,
+				240B14461D74A11200E45D98 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				240B144F1D74A11200E45D98 /* PBXTargetDependency */,
+			);
+			name = CacheTests;
+			productName = CacheTests;
+			productReference = 240B14481D74A11200E45D98 /* CacheTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		24DF7A981D7361B800D3547B /* Cache */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 24DF7AA11D7361B800D3547B /* Build configuration list for PBXNativeTarget "Cache" */;
@@ -109,9 +164,13 @@
 		24DF7A901D7361B800D3547B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = jcbator;
 				TargetAttributes = {
+					240B14471D74A11200E45D98 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
 					24DF7A981D7361B800D3547B = {
 						CreatedOnToolsVersion = 7.3.1;
 					};
@@ -130,11 +189,19 @@
 			projectRoot = "";
 			targets = (
 				24DF7A981D7361B800D3547B /* Cache */,
+				240B14471D74A11200E45D98 /* CacheTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		240B14461D74A11200E45D98 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		24DF7A971D7361B800D3547B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -145,21 +212,58 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		240B14441D74A11200E45D98 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				240B14541D74A1D200E45D98 /* IceCreamFlavor.swift in Sources */,
+				240B144B1D74A11200E45D98 /* CacheTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		24DF7A941D7361B800D3547B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				24DF7AC91D7391E900D3547B /* JSONSerializable.swift in Sources */,
-				24DF7AC81D7391E900D3547B /* Cacheable.swift in Sources */,
-				24DF7AC71D7391E900D3547B /* Cache.swift in Sources */,
-				24DF7ACA1D7391E900D3547B /* NSDate+Expiration.swift in Sources */,
-				24037CFC1D739EB800B1BBF1 /* NSKeyedUnarchiver+Safe.m in Sources */,
+				24DB6BEA1D749A3D00C5F149 /* NSDate+Expiration.swift in Sources */,
+				24DB6BEE1D749A4700C5F149 /* Serializable.swift in Sources */,
+				24DB6BE91D749A3D00C5F149 /* Cacheable.swift in Sources */,
+				24DB6BE81D749A3D00C5F149 /* Cache.swift in Sources */,
+				24DB6BEC1D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		240B144F1D74A11200E45D98 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 24DF7A981D7361B800D3547B /* Cache */;
+			targetProxy = 240B144E1D74A11200E45D98 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		240B14511D74A11200E45D98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = CacheTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.jcbator.CacheTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		240B14521D74A11200E45D98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = CacheTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.jcbator.CacheTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		24DF7A9F1D7361B800D3547B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -289,6 +393,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		240B14501D74A11200E45D98 /* Build configuration list for PBXNativeTarget "CacheTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				240B14511D74A11200E45D98 /* Debug */,
+				240B14521D74A11200E45D98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		24DF7A931D7361B800D3547B /* Build configuration list for PBXProject "Cache" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
