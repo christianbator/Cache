@@ -14,13 +14,13 @@ private let expirationDateKey = "expiration_date"
 public struct Cacheable<T: Serializable> {
     
     public let value: Serializable
-    public let expirationDate: NSDate
+    public let expirationDate: Date
     
     public var expired: Bool {
         return expirationDate.isInThePast
     }
 
-    public init(value: T, expirationDate: NSDate) {
+    public init(value: T, expirationDate: Date) {
         self.value = value
         self.expirationDate = expirationDate
     }
@@ -33,20 +33,20 @@ extension Cacheable: Serializable {
         guard
             let serializedValue = serialized[valueKey] as? Serialized,
             let value = T(serialized: serializedValue),
-            let serializedExpiration = serialized[expirationDateKey] as? NSTimeInterval else {
+            let serializedExpiration = serialized[expirationDateKey] as? TimeInterval else {
                 
                 return nil
         }
         
         self.value = value
-        self.expirationDate =  NSDate(timeIntervalSince1970: serializedExpiration)
+        self.expirationDate =  Date(timeIntervalSince1970: serializedExpiration)
     }
     
     public func serialize() -> Serialized {
         
         let serialized: Serialized = [
-            valueKey : value.serialize(),
-            expirationDateKey : expirationDate.timeIntervalSince1970
+            valueKey : value.serialize() as AnyObject,
+            expirationDateKey : expirationDate.timeIntervalSince1970 as AnyObject
         ]
         
         return serialized
@@ -64,9 +64,9 @@ extension Cacheable: Serializable {
 
     required init(coder aDecoder: NSCoder) {
         do {
-            if  let serializedString = aDecoder.decodeObjectForKey(valueKey) as? String,
-                let serializedData = serializedString.dataUsingEncoding(NSUTF8StringEncoding),
-                let serialized = try NSJSONSerialization.JSONObjectWithData(serializedData, options: .AllowFragments) as? Serialized {
+            if  let serializedString = aDecoder.decodeObject(forKey: valueKey) as? String,
+                let serializedData = serializedString.data(using: String.Encoding.utf8),
+                let serialized = try JSONSerialization.jsonObject(with: serializedData, options: .allowFragments) as? Serialized {
                 
                 self.serialized = serialized
             }
@@ -74,16 +74,16 @@ extension Cacheable: Serializable {
         catch { }
     }
     
-    func encodeWithCoder(aCoder: NSCoder) {
+    func encodeWithCoder(_ aCoder: NSCoder) {
         guard let serialized = serialized else {
             return
         }
         
         do {
-            let serializedData = try NSJSONSerialization.dataWithJSONObject(serialized, options: .PrettyPrinted)
+            let serializedData = try JSONSerialization.data(withJSONObject: serialized, options: .prettyPrinted)
             
-            if let serializedString = String(data: serializedData, encoding: NSUTF8StringEncoding) {
-                aCoder.encodeObject(serializedString, forKey: valueKey)
+            if let serializedString = String(data: serializedData, encoding: String.Encoding.utf8) {
+                aCoder.encode(serializedString, forKey: valueKey)
             }
         }
         catch { }

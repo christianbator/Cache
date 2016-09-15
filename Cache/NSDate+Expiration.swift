@@ -10,24 +10,24 @@ import Foundation
 
 public enum Expiration {
     
-    case Never
-    case Seconds(NSTimeInterval)
-    case Date(NSDate)
+    case never
+    case seconds(TimeInterval)
+    case date(Foundation.Date)
     
-    var expirationDate: NSDate {
+    var expirationDate: Foundation.Date {
         switch self {
-        case Never:
-            return NSDate.distantFuture()
-        case Seconds(let seconds):
-            return NSDate().dateByAddingTimeInterval(seconds)
-        case Date(let date):
+        case .never:
+            return Foundation.Date.distantFuture
+        case .seconds(let seconds):
+            return Foundation.Date().addingTimeInterval(seconds)
+        case .date(let date):
             return date
         }
     }
     
 }
 
-extension NSDate {
+extension Date {
     
     var isInThePast: Bool {
         return timeIntervalSinceNow < 0

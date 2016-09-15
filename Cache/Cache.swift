@@ -13,13 +13,13 @@ private let domainIdentifier = "com.jcbator.cache"
 public struct Cache<T: Serializable> {
     
     public let name: String
-    public let cacheDirectory: NSURL
+    public let cacheDirectory: URL
 
-    private let cache = NSCache()
-    private let fileManager = NSFileManager()
-    private let queue = dispatch_queue_create("\(domainIdentifier).diskQueue", DISPATCH_QUEUE_CONCURRENT)
+    private let cache = NSCache<NSString, AnyObject>()
+    private let fileManager = FileManager()
+    private let queue = DispatchQueue(label: "\(domainIdentifier).diskQueue", attributes: .concurrent)
 
-    public init?(name: String, directory: NSURL?, fileProtection: String? = nil) {
+    public init?(name: String, directory: URL?, fileProtection: String? = nil) {
         self.name = name
         cache.name = name
 
@@ -27,16 +27,16 @@ public struct Cache<T: Serializable> {
             cacheDirectory = directory
         }
         else {
-            let url = fileManager.URLsForDirectory(.CachesDirectory, inDomains: .UserDomainMask).first!
-            cacheDirectory = url.URLByAppendingPathComponent(domainIdentifier + "/" + name)
+            let url = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
+            cacheDirectory = url.appendingPathComponent(domainIdentifier + "/" + name)
         }
 
         do {
-            try fileManager.createDirectoryAtURL(cacheDirectory, withIntermediateDirectories: true, attributes: nil)
+            try fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
 
             if let fileProtection = fileProtection {
-                let protection = [NSFileProtectionKey : fileProtection]
-                try fileManager.setAttributes(protection, ofItemAtPath: cacheDirectory.path!)
+                let protection = [FileAttributeKey.protectionKey : fileProtection]
+                try fileManager.setAttributes(protection, ofItemAtPath: cacheDirectory.path)
             }
         }
         catch {
@@ -53,24 +53,24 @@ public struct Cache<T: Serializable> {
     
     // MARK: - Reading
 
-    public func valueForKey(key: String, allowingExpiredResult: Bool = false) -> T? {
+    public func valueForKey(_ key: String, allowingExpiredResult: Bool = false) -> T? {
         var value: Cacheable<T>?
         
-        dispatch_sync(queue) {
+        queue.sync {
             value = self.read(key)
         }
 
-        guard let validValue = value where !validValue.expired || allowingExpiredResult else {
+        guard let validValue = value , !validValue.expired || allowingExpiredResult else {
             return nil
         }
 
         return validValue.value as? T
     }
 
-    public func allValues(allowingExpiredResults: Bool = false) -> [T] {
+    public func allValues(_ allowingExpiredResults: Bool = false) -> [T] {
         var values = [T]()
 
-        dispatch_sync(queue) {
+        queue.sync {
             let results = self.allKeys.flatMap { self.read($0) }
             let filtered = allowingExpiredResults ? results : results.filter { !$0.expired }
             
@@ -95,20 +95,22 @@ public struct Cache<T: Serializable> {
         }
     }
     
-    private func read(key: String) -> Cacheable<T>? {
-        if  let object = cache.objectForKey(key) as? CacheableObject,
+    private func read(_ key: String) -> Cacheable<T>? {
+        if  let object = cache.object(forKey: key as NSString) as? CacheableObject,
             let serialized = object.serialized,
             let value = Cacheable<T>(serialized: serialized) {
             
             return value
         }
         
-        if  let path = urlForKey(key).path where fileManager.fileExistsAtPath(path),
+        let path = urlForKey(key).path
+        
+        if  fileManager.fileExists(atPath: path),
             let object = unarchiveObjectAtPath(path),
             let serialized = object.serialized,
             let value = Cacheable<T>(serialized: serialized) {
             
-            cache.setObject(object, forKey: key)
+            cache.setObject(object, forKey: key as NSString)
             
             return value
         }
@@ -116,31 +118,29 @@ public struct Cache<T: Serializable> {
         return nil
     }
     
-    private func unarchiveObjectAtPath(path: String) -> CacheableObject? {
-        
-        return NSKeyedUnarchiver.safelyUnarchiveObjectAtPath(path) as? CacheableObject
+    private func unarchiveObjectAtPath(_ path: String) -> CacheableObject? {
+        return NSKeyedUnarchiver.safelyUnarchiveObject(atPath: path) as? CacheableObject
     }
 
     
     // MARK: - Writing
     
-    public func setValue(value: T, forKey key: String, expiration: Expiration = .Never) {
+    public func setValue(_ value: T, forKey key: String, expiration: Expiration = .never) {
         let cacheable = Cacheable(value: value, expirationDate: expiration.expirationDate)
         let cacheableObject = CacheableObject(serializable: cacheable)
         
         self.write(cacheableObject, forKey: key)
     }
     
-    private func write(object: CacheableObject, forKey key: String) {
-        cache.setObject(object, forKey: key)
+    private func write(_ object: CacheableObject, forKey key: String) {
+        cache.setObject(object, forKey: key as NSString)
         
-        dispatch_barrier_async(queue) {
-            if let path = self.urlForKey(key).path {
-                let success = NSKeyedArchiver.archiveRootObject(object, toFile: path)
-                
-                if !success {
-                    debugPrint("ERROR")
-                }
+        queue.async(flags: .barrier) {
+            let path = self.urlForKey(key).path
+            let success = NSKeyedArchiver.archiveRootObject(object, toFile: path)
+            
+            if !success {
+                debugPrint("Error writing object:\(object.serialized) for key: \(key)")
             }
         }
     }
@@ -148,18 +148,18 @@ public struct Cache<T: Serializable> {
     
     // MARK: - Removing
 
-    public func removeValueForKey(key: String) {
-        cache.removeObjectForKey(key)
+    public func removeValueForKey(_ key: String) {
+        cache.removeObject(forKey: key as NSString)
 
-        dispatch_barrier_async(queue) {
+        queue.async(flags: .barrier) {
             self.removeFromDisk(key)
         }
     }
     
     public func removeExpiredValues() {
-        dispatch_barrier_sync(queue) {
+        queue.sync(flags: .barrier) {
             for key in self.allKeys {
-                if let value = self.read(key) where value.expired {
+                if let value = self.read(key), value.expired {
                     self.removeValueForKey(key)
                 }
             }
@@ -169,40 +169,40 @@ public struct Cache<T: Serializable> {
     public func removeAllValues() {
         cache.removeAllObjects()
         
-        dispatch_barrier_async(queue) {
+        queue.async(flags: .barrier) {
             self.allKeys.forEach(self.removeFromDisk)
         }
     }
 
-    internal func removeFromDisk(key: String) {
+    internal func removeFromDisk(_ key: String) {
         let url = self.urlForKey(key)
-        _ = try? self.fileManager.removeItemAtURL(url)
+        _ = try? self.fileManager.removeItem(at: url)
     }
     
     
     // MARK: - Helpers
 
     private var allKeys : [String] {
-        let urls = try? fileManager.contentsOfDirectoryAtURL(cacheDirectory, includingPropertiesForKeys: nil, options: [])
-        return urls?.flatMap { $0.URLByDeletingPathExtension?.lastPathComponent } ?? []
+        let urls = try? fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil, options: [])
+        return urls?.flatMap { $0.deletingPathExtension().lastPathComponent } ?? []
     }
 
-    private func urlForKey(key: String) -> NSURL {
+    private func urlForKey(_ key: String) -> URL {
         let sanitizedKey = sanitize(key)
-        let url = cacheDirectory.URLByAppendingPathComponent(sanitizedKey).URLByAppendingPathExtension("cache")
+        let url = cacheDirectory.appendingPathComponent(sanitizedKey).appendingPathExtension("cache")
         
         return url
     }
 
-    private func sanitize(key: String) -> String {
-        return key.stringByReplacingOccurrencesOfString("[^a-zA-Z0-9_]+", withString: "-", options: .RegularExpressionSearch, range: nil)
+    private func sanitize(_ key: String) -> String {
+        return key.replacingOccurrences(of: "[^a-zA-Z0-9_]+", with: "-", options: .regularExpression, range: nil)
     }
     
     
     // MARK: - Testing Helpers
     
-    internal func __removeFromMemory(key: String) {
-        cache.removeObjectForKey(key)
+    internal func _removeFromMemory(_ key: String) {
+        cache.removeObject(forKey: key as NSString)
     }
 
 }
@@ -210,10 +210,10 @@ public struct Cache<T: Serializable> {
 public struct CacheCleaner {
     
     public static func purgeCache() {
-        let url = NSFileManager.defaultManager().URLsForDirectory(.CachesDirectory, inDomains: .UserDomainMask).first!
-        let cacheDirectory = url.URLByAppendingPathComponent(domainIdentifier)
+        let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        let cacheDirectory = url.appendingPathComponent(domainIdentifier)
         
-        _ = try? NSFileManager.defaultManager().removeItemAtURL(cacheDirectory)
+        _ = try? FileManager.default.removeItem(at: cacheDirectory)
     }
     
 }

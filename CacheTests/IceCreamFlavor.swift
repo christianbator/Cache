@@ -27,7 +27,7 @@ struct IceCreamFlavor: Serializable, CollectionSerializable {
     
     func serialize() -> Serialized {
         return [
-            "name" : name
+            "name" : name as AnyObject
         ]
     }
     
