@@ -19,13 +19,13 @@ public protocol Serializable {
 
 public protocol CollectionSerializable {
     
-    static func collection(serialized: [Serialized]) -> [Self]
+    static func collection(_ serialized: [Serialized]) -> [Self]
     
 }
 
 public extension CollectionSerializable where Self: Serializable {
     
-    public static func collection(serializedEntities: [Serialized]) -> [Self] {
+    public static func collection(_ serializedEntities: [Serialized]) -> [Self] {
     
         let collection = serializedEntities.flatMap { serializedEntity in
             Self(serialized: serializedEntity)

@@ -24,21 +24,19 @@ class CacheTests: XCTestCase {
     }
     
     override func tearDown() {
-        super.tearDown()
-        
         CacheCleaner.purgeCache()
+        super.tearDown()
     }
     
     func testVanillaAndChocolateCacheAndRead() {
-        
         let vanilla = IceCreamFlavor(name: "Vanilla")
         let chocolate = IceCreamFlavor(name: "Chocolate")
         
         cache[vanilla.name] = vanilla
         cache[chocolate.name] = chocolate
         
-        cache.__removeFromMemory(vanilla.name)
-        cache.__removeFromMemory(chocolate.name)
+        cache._removeFromMemory(vanilla.name)
+        cache._removeFromMemory(chocolate.name)
         
         let cachedVanilla = cache[vanilla.name]
         let cachedChocolate = cache[chocolate.name]
