@@ -12,14 +12,14 @@ public enum Expiration {
     
     case never
     case seconds(TimeInterval)
-    case date(Foundation.Date)
+    case date(Date)
     
-    var expirationDate: Foundation.Date {
+    var expirationDate: Date {
         switch self {
         case .never:
-            return Foundation.Date.distantFuture
+            return Date.distantFuture
         case .seconds(let seconds):
-            return Foundation.Date().addingTimeInterval(seconds)
+            return Date().addingTimeInterval(seconds)
         case .date(let date):
             return date
         }

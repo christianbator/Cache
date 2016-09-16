@@ -13,10 +13,9 @@
 		24DB6BE81D749A3D00C5F149 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BE31D749A3D00C5F149 /* Cache.swift */; };
 		24DB6BE91D749A3D00C5F149 /* Cacheable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BE41D749A3D00C5F149 /* Cacheable.swift */; };
 		24DB6BEA1D749A3D00C5F149 /* NSDate+Expiration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BE51D749A3D00C5F149 /* NSDate+Expiration.swift */; };
-		24DB6BEB1D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DB6BE61D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		24DB6BEC1D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BE71D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m */; };
-		24DB6BEE1D749A4700C5F149 /* Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB6BED1D749A4700C5F149 /* Serializable.swift */; };
 		24DF7A9D1D7361B800D3547B /* Cache.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DF7A9C1D7361B800D3547B /* Cache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		24F54B6A1D8B957E00F8C6A6 /* Entity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F54B691D8B957E00F8C6A6 /* Entity.swift */; };
+		24F54B6E1D8C43D900F8C6A6 /* DataConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24F54B6D1D8C43D900F8C6A6 /* DataConvertible.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,12 +36,11 @@
 		24DB6BE31D749A3D00C5F149 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		24DB6BE41D749A3D00C5F149 /* Cacheable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cacheable.swift; sourceTree = "<group>"; };
 		24DB6BE51D749A3D00C5F149 /* NSDate+Expiration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDate+Expiration.swift"; sourceTree = "<group>"; };
-		24DB6BE61D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSKeyedUnarchiver+Safe.h"; sourceTree = "<group>"; };
-		24DB6BE71D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSKeyedUnarchiver+Safe.m"; sourceTree = "<group>"; };
-		24DB6BED1D749A4700C5F149 /* Serializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Serializable.swift; sourceTree = "<group>"; };
 		24DF7A991D7361B800D3547B /* Cache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Cache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		24DF7A9C1D7361B800D3547B /* Cache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Cache.h; sourceTree = "<group>"; };
 		24DF7A9E1D7361B800D3547B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		24F54B691D8B957E00F8C6A6 /* Entity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entity.swift; sourceTree = "<group>"; };
+		24F54B6D1D8C43D900F8C6A6 /* DataConvertible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataConvertible.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +65,7 @@
 		240B14491D74A11200E45D98 /* CacheTests */ = {
 			isa = PBXGroup;
 			children = (
+				24F54B691D8B957E00F8C6A6 /* Entity.swift */,
 				240B14531D74A1D200E45D98 /* IceCreamFlavor.swift */,
 				240B144A1D74A11200E45D98 /* CacheTests.swift */,
 				240B144C1D74A11200E45D98 /* Info.plist */,
@@ -96,11 +95,9 @@
 			isa = PBXGroup;
 			children = (
 				24DB6BE31D749A3D00C5F149 /* Cache.swift */,
-				24DB6BED1D749A4700C5F149 /* Serializable.swift */,
 				24DB6BE41D749A3D00C5F149 /* Cacheable.swift */,
+				24F54B6D1D8C43D900F8C6A6 /* DataConvertible.swift */,
 				24DB6BE51D749A3D00C5F149 /* NSDate+Expiration.swift */,
-				24DB6BE61D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h */,
-				24DB6BE71D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m */,
 				24DF7A9C1D7361B800D3547B /* Cache.h */,
 				24DF7A9E1D7361B800D3547B /* Info.plist */,
 			);
@@ -114,7 +111,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				24DB6BEB1D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.h in Headers */,
 				24DF7A9D1D7361B800D3547B /* Cache.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -220,6 +216,7 @@
 			files = (
 				240B14541D74A1D200E45D98 /* IceCreamFlavor.swift in Sources */,
 				240B144B1D74A11200E45D98 /* CacheTests.swift in Sources */,
+				24F54B6A1D8B957E00F8C6A6 /* Entity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,11 +224,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				24F54B6E1D8C43D900F8C6A6 /* DataConvertible.swift in Sources */,
 				24DB6BEA1D749A3D00C5F149 /* NSDate+Expiration.swift in Sources */,
-				24DB6BEE1D749A4700C5F149 /* Serializable.swift in Sources */,
 				24DB6BE91D749A3D00C5F149 /* Cacheable.swift in Sources */,
 				24DB6BE81D749A3D00C5F149 /* Cache.swift in Sources */,
-				24DB6BEC1D749A3D00C5F149 /* NSKeyedUnarchiver+Safe.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

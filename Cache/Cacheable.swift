@@ -8,87 +8,73 @@
 
 import Foundation
 
-private let valueKey = "value"
-private let expirationDateKey = "expiration_date"
 
-public struct Cacheable<T: Serializable> {
+/// Cacheable is a value, expirationDate pair that is read from / written to disk
+
+struct Cacheable<T: DataConvertible> {
     
-    public let value: Serializable
-    public let expirationDate: Date
+    let value: T
+    let expirationDate: Date
     
-    public var expired: Bool {
+    var expired: Bool {
         return expirationDate.isInThePast
     }
 
-    public init(value: T, expirationDate: Date) {
+    init(value: T, expirationDate: Date) {
         self.value = value
         self.expirationDate = expirationDate
     }
     
 }
 
-extension Cacheable: Serializable {
+
+// MARK: - Private
+
+private enum CacheKeys: String {
     
-    public init?(serialized: Serialized) {
+    case value
+    case expiration
+    
+}
+
+extension Cacheable: DataConvertible {
+    
+    init?(data: Data) {
         guard
-            let serializedValue = serialized[valueKey] as? Serialized,
-            let value = T(serialized: serializedValue),
-            let serializedExpiration = serialized[expirationDateKey] as? TimeInterval else {
+            let json = Cacheable.dictionary(with: data),
+            let valueString = json[CacheKeys.value.rawValue] as? String,
+            let valueData = valueString.data(using: .utf8),
+            let value = T(data: valueData),
+            let serializedExpiration = json[CacheKeys.expiration.rawValue] as? TimeInterval else {
                 
                 return nil
         }
         
         self.value = value
-        self.expirationDate =  Date(timeIntervalSince1970: serializedExpiration)
+        self.expirationDate =  Date(timeIntervalSinceReferenceDate: serializedExpiration)
     }
     
-    public func serialize() -> Serialized {
+    func asData() throws -> Data {
+        var data = Data()
         
-        let serialized: Serialized = [
-            valueKey : value.serialize() as AnyObject,
-            expirationDateKey : expirationDate.timeIntervalSince1970 as AnyObject
-        ]
-        
-        return serialized
-    }
-
-}
-
-@objc class CacheableObject: NSObject {
-    
-    var serialized: Serialized?
-    
-    init(serializable: Serializable) {
-        serialized = serializable.serialize()
-    }
-
-    required init(coder aDecoder: NSCoder) {
         do {
-            if  let serializedString = aDecoder.decodeObject(forKey: valueKey) as? String,
-                let serializedData = serializedString.data(using: String.Encoding.utf8),
-                let serialized = try JSONSerialization.jsonObject(with: serializedData, options: .allowFragments) as? Serialized {
-                
-                self.serialized = serialized
+            let valueData = try value.asData()
+            guard let valueString = String(data: valueData, encoding: .utf8) else {
+                throw CacheError.dataConversionFailed
             }
-        }
-        catch { }
-    }
-    
-    func encodeWithCoder(_ aCoder: NSCoder) {
-        guard let serialized = serialized else {
-            return
-        }
-        
-        do {
-            let serializedData = try JSONSerialization.data(withJSONObject: serialized, options: .prettyPrinted)
             
-            if let serializedString = String(data: serializedData, encoding: String.Encoding.utf8) {
-                aCoder.encode(serializedString, forKey: valueKey)
-            }
+            let json: [String : Any] = [
+                CacheKeys.value.rawValue : valueString,
+                CacheKeys.expiration.rawValue : expirationDate.timeIntervalSinceReferenceDate
+            ]
+            
+            data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
         }
-        catch { }
+        catch {
+            throw CacheError.dataConversionFailed
+        }
+        
+        return data
     }
     
 }
-
-

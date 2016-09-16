@@ -8,35 +8,50 @@
 
 import Foundation
 
+public enum CacheError: Error {
+    
+    case dataConversionFailed
+    
+    var reason: String {
+        switch self {
+        case .dataConversionFailed:
+            return "Converting the dataConvertible to Data failed"
+        }
+    }
+    
+}
+
 private let domainIdentifier = "com.jcbator.cache"
 
-public struct Cache<T: Serializable> {
+public class Cache<T: DataConvertible> {
     
     public let name: String
     public let cacheDirectory: URL
 
-    private let cache = NSCache<NSString, AnyObject>()
-    private let fileManager = FileManager()
-    private let queue = DispatchQueue(label: "\(domainIdentifier).diskQueue", attributes: .concurrent)
+    private let _cache = NSCache<AnyObject, AnyObject>()
+    private let _fileManager = FileManager()
+    private let _queue = DispatchQueue(label: "\(domainIdentifier).diskQueue", attributes: .concurrent)
+    
+    private var _allKeys: [String]?
 
     public init?(name: String, directory: URL?, fileProtection: String? = nil) {
         self.name = name
-        cache.name = name
+        _cache.name = name
 
         if let directory = directory {
             cacheDirectory = directory
         }
         else {
-            let url = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
+            let url = _fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
             cacheDirectory = url.appendingPathComponent(domainIdentifier + "/" + name)
         }
 
         do {
-            try fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
+            try _fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true, attributes: nil)
 
             if let fileProtection = fileProtection {
                 let protection = [FileAttributeKey.protectionKey : fileProtection]
-                try fileManager.setAttributes(protection, ofItemAtPath: cacheDirectory.path)
+                try _fileManager.setAttributes(protection, ofItemAtPath: cacheDirectory.path)
             }
         }
         catch {
@@ -46,48 +61,18 @@ public struct Cache<T: Serializable> {
         }
     }
 
-    public init?(name: String) {
+    public convenience init?(name: String) {
         self.init(name: name, directory: nil)
-    }
-    
-    
-    // MARK: - Reading
-
-    public func valueForKey(_ key: String, allowingExpiredResult: Bool = false) -> T? {
-        var value: Cacheable<T>?
-        
-        queue.sync {
-            value = self.read(key)
-        }
-
-        guard let validValue = value , !validValue.expired || allowingExpiredResult else {
-            return nil
-        }
-
-        return validValue.value as? T
-    }
-
-    public func allValues(_ allowingExpiredResults: Bool = false) -> [T] {
-        var values = [T]()
-
-        queue.sync {
-            let results = self.allKeys.flatMap { self.read($0) }
-            let filtered = allowingExpiredResults ? results : results.filter { !$0.expired }
-            
-            values = filtered.flatMap { $0.value as? T }
-        }
-
-        return values
     }
     
     public subscript(key: String) -> T? {
         get {
-            return valueForKey(key)
+            return value(forKey: key)
         }
         
         set(newValue) {
             if let value = newValue {
-                setValue(value, forKey: key)
+                set(value, forKey: key)
             }
             else {
                 removeValueForKey(key)
@@ -95,53 +80,59 @@ public struct Cache<T: Serializable> {
         }
     }
     
-    private func read(_ key: String) -> Cacheable<T>? {
-        if  let object = cache.object(forKey: key as NSString) as? CacheableObject,
-            let serialized = object.serialized,
-            let value = Cacheable<T>(serialized: serialized) {
-            
-            return value
+    
+    // MARK: - Reading
+
+    public func value(forKey key: String, allowingExpiredResult: Bool = false) -> T? {
+        var value: T?
+        
+        _queue.sync {
+            if let validValue = self._read(key), !validValue.expired || allowingExpiredResult {
+                value = validValue.value
+            }
         }
         
-        let path = urlForKey(key).path
-        
-        if  fileManager.fileExists(atPath: path),
-            let object = unarchiveObjectAtPath(path),
-            let serialized = object.serialized,
-            let value = Cacheable<T>(serialized: serialized) {
-            
-            cache.setObject(object, forKey: key as NSString)
-            
-            return value
-        }
-        
-        return nil
+        return value
     }
     
-    private func unarchiveObjectAtPath(_ path: String) -> CacheableObject? {
-        return NSKeyedUnarchiver.safelyUnarchiveObject(atPath: path) as? CacheableObject
+    
+    public func allKeys() -> [String] {
+        if let allKeys = _allKeys {
+            return allKeys
+        }
+        
+        var refreshedKeys = [String]()
+        
+        _queue.sync(flags: .barrier) {
+            let urls = try? self._fileManager.contentsOfDirectory(at: self.cacheDirectory, includingPropertiesForKeys: nil, options: [])
+            refreshedKeys = urls?.flatMap { $0.deletingPathExtension().lastPathComponent } ?? []
+            
+            self._allKeys = refreshedKeys
+        }
+        
+        return refreshedKeys
     }
 
+    public func allValues(_ allowingExpiredResults: Bool = false) -> [T] {
+        var values = [T]()
+
+        _queue.sync {
+            let results = self.allKeys().flatMap { self._read($0) }
+            let filtered = allowingExpiredResults ? results : results.filter { !$0.expired }
+            
+            values = filtered.flatMap { $0.value }
+        }
+
+        return values
+    }
+    
     
     // MARK: - Writing
     
-    public func setValue(_ value: T, forKey key: String, expiration: Expiration = .never) {
-        let cacheable = Cacheable(value: value, expirationDate: expiration.expirationDate)
-        let cacheableObject = CacheableObject(serializable: cacheable)
-        
-        self.write(cacheableObject, forKey: key)
-    }
-    
-    private func write(_ object: CacheableObject, forKey key: String) {
-        cache.setObject(object, forKey: key as NSString)
-        
-        queue.async(flags: .barrier) {
-            let path = self.urlForKey(key).path
-            let success = NSKeyedArchiver.archiveRootObject(object, toFile: path)
-            
-            if !success {
-                debugPrint("Error writing object:\(object.serialized) for key: \(key)")
-            }
+    public func set(_ value: T, forKey key: String, expiration: Expiration = .never) {
+        _queue.async(flags: .barrier) {
+            let cacheable = Cacheable(value: value, expirationDate: expiration.expirationDate)
+            self._write(cacheable, forKey: key)
         }
     }
     
@@ -149,52 +140,75 @@ public struct Cache<T: Serializable> {
     // MARK: - Removing
 
     public func removeValueForKey(_ key: String) {
-        cache.removeObject(forKey: key as NSString)
-
-        queue.async(flags: .barrier) {
-            self.removeFromDisk(key)
+        _queue.async(flags: .barrier) {
+            self._allKeys = nil
+            
+            self._cache.removeObject(forKey: NSString(string: key))
+            
+            let url = self._urlForKey(key)
+            _ = try? self._fileManager.removeItem(at: url)
         }
     }
     
     public func removeExpiredValues() {
-        queue.sync(flags: .barrier) {
-            for key in self.allKeys {
-                if let value = self.read(key), value.expired {
-                    self.removeValueForKey(key)
-                }
+        allKeys().forEach { key in
+            if let value = _read(key), value.expired {
+                removeValueForKey(key)
             }
         }
     }
 
     public func removeAllValues() {
-        cache.removeAllObjects()
-        
-        queue.async(flags: .barrier) {
-            self.allKeys.forEach(self.removeFromDisk)
-        }
+        allKeys().forEach(removeValueForKey)
     }
 
-    internal func removeFromDisk(_ key: String) {
-        let url = self.urlForKey(key)
-        _ = try? self.fileManager.removeItem(at: url)
-    }
-    
     
     // MARK: - Helpers
-
-    private var allKeys : [String] {
-        let urls = try? fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil, options: [])
-        return urls?.flatMap { $0.deletingPathExtension().lastPathComponent } ?? []
+    
+    private func _read(_ key: String) -> Cacheable<T>? {
+        if let memoryCacheable = _cache.object(forKey: NSString(string: key)) as? Cacheable<T> {
+            return memoryCacheable
+        }
+        
+        let path = _urlForKey(key).path
+        
+        if  _fileManager.fileExists(atPath: path),
+            let data = _fileManager.contents(atPath: path),
+            let diskCacheable = Cacheable<T>(data: data) {
+            
+            _queue.async(flags: .barrier) {
+                self._cache.setObject(diskCacheable as AnyObject, forKey: NSString(string: key))
+            }
+            
+            return diskCacheable
+        }
+        
+        return nil
     }
 
-    private func urlForKey(_ key: String) -> URL {
-        let sanitizedKey = sanitize(key)
-        let url = cacheDirectory.appendingPathComponent(sanitizedKey).appendingPathExtension("cache")
+    private func _write(_ cacheable: Cacheable<T>, forKey key: String) {
+        _allKeys = nil
+        
+        _cache.setObject(cacheable as AnyObject, forKey: NSString(string: key))
+        
+        let url = self._urlForKey(key)
+        
+        do {
+           try cacheable.asData().write(to: url, options: .atomic)
+        }
+        catch {
+            debugPrint(error)
+        }
+    }
+    
+    private func _urlForKey(_ key: String) -> URL {
+        let sanitizedKey = _sanitize(key)
+        let url = cacheDirectory.appendingPathComponent(sanitizedKey)
         
         return url
     }
-
-    private func sanitize(_ key: String) -> String {
+    
+    private func _sanitize(_ key: String) -> String {
         return key.replacingOccurrences(of: "[^a-zA-Z0-9_]+", with: "-", options: .regularExpression, range: nil)
     }
     
@@ -202,7 +216,9 @@ public struct Cache<T: Serializable> {
     // MARK: - Testing Helpers
     
     internal func _removeFromMemory(_ key: String) {
-        cache.removeObject(forKey: key as NSString)
+        _queue.async(flags: .barrier) {
+            self._cache.removeObject(forKey: NSString(string: key))
+        }
     }
 
 }
