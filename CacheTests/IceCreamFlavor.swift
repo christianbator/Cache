@@ -9,7 +9,7 @@
 import Foundation
 import Cache
 
-struct IceCreamFlavor: Serializable, CollectionSerializable {
+struct IceCreamFlavor: Entity, Equatable {
     
     let name: String
     
@@ -17,18 +17,30 @@ struct IceCreamFlavor: Serializable, CollectionSerializable {
         self.name = name
     }
     
-    init?(serialized: Serialized) {
-        guard let serializedName = serialized["name"] as? String else {
-            return nil
+    init?(data: Data) {
+        guard
+            let json = IceCreamFlavor.dictionary(with: data),
+            let name = json["name"] as? String else {
+                
+                return nil
         }
-        
-        self.name = serializedName
+
+        self.name = name
     }
     
-    func serialize() -> Serialized {
-        return [
-            "name" : name as AnyObject
+    func asData() throws -> Data {
+        let json = [
+            "name" : name
         ]
+        
+        let data = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
+        
+        return data
     }
     
+}
+
+
+func ==(lhs: IceCreamFlavor, rhs: IceCreamFlavor) -> Bool {
+    return lhs.name == rhs.name
 }
