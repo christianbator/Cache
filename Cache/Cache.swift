@@ -30,13 +30,16 @@ public class Cache<T: DataConvertible> {
 
     private let _cache = NSCache<AnyObject, AnyObject>()
     private let _fileManager = FileManager()
-    private let _queue = DispatchQueue(label: "\(domainIdentifier).diskQueue", attributes: .concurrent)
+    private let _queue: DispatchQueue
     
     private var _allKeys: [String]?
 
     public init?(name: String, directory: URL?, fileProtection: String? = nil) {
         self.name = name
         _cache.name = name
+        
+        let qos = DispatchQoS(qosClass: .userInitiated, relativePriority: 0)
+        _queue = DispatchQueue(label: "\(domainIdentifier).diskQueue", qos: qos, attributes: .concurrent)
 
         if let directory = directory {
             cacheDirectory = directory
