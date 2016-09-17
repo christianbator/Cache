@@ -56,8 +56,28 @@ class CacheTests: XCTestCase {
         
         let allKeys = cache.allKeys()
         
+        
+        
         assert(allKeys.contains("Vanilla"), "Couldn't find Vanilla key in the cache")
         assert(allKeys.contains("Chocolate"), "Couldn't find Chocolate key in the cache")
+    }
+    
+    func testVanillaAndChocolateAllValues() {
+        guard let cache = Cache<IceCreamFlavor>(name: "Ice Cream Flavors") else {
+            assertionFailure("Ice Cream Flavor cache failed to initialize")
+            return
+        }
+        
+        let vanilla = IceCreamFlavor(name: "Vanilla")
+        let chocolate = IceCreamFlavor(name: "Chocolate")
+        
+        cache[vanilla.name] = vanilla
+        cache[chocolate.name] = chocolate
+        
+        let allValues = cache.allValues()
+        
+        assert(allValues.contains(vanilla), "Couldn't find Vanilla key in the cache")
+        assert(allValues.contains(chocolate), "Couldn't find Chocolate key in the cache")
     }
     
     func testIceCreamCollection() {
