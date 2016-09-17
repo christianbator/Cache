@@ -119,8 +119,10 @@ public class Cache<T: DataConvertible> {
     public func allValues(_ allowingExpiredResults: Bool = false) -> [T] {
         var values = [T]()
 
+        let keys = allKeys()
+        
         _queue.sync {
-            let results = self.allKeys().flatMap { self._read($0) }
+            let results = keys.flatMap { self._read($0) }
             let filtered = allowingExpiredResults ? results : results.filter { !$0.expired }
             
             values = filtered.flatMap { $0.value }
