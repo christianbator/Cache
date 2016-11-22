@@ -12,6 +12,10 @@ public enum Expiration {
     
     case never
     case seconds(TimeInterval)
+    case minutes(TimeInterval)
+    case hours(TimeInterval)
+    case days(TimeInterval)
+    case months(TimeInterval)
     case date(Date)
     
     var expirationDate: Date {
@@ -20,6 +24,14 @@ public enum Expiration {
             return Date.distantFuture
         case .seconds(let seconds):
             return Date().addingTimeInterval(seconds)
+        case .minutes(let minutes):
+            return Date().addingTimeInterval(60 * minutes)
+        case .hours(let hours):
+            return Date().addingTimeInterval(60 * 60 * hours)
+        case .days(let days):
+            return Date().addingTimeInterval(60 * 60 * 24 * days)
+        case .months(let months):
+            return Date().addingTimeInterval(60 * 60 * 24 * 30 * months)
         case .date(let date):
             return date
         }
