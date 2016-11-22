@@ -30,7 +30,6 @@ public class Cache<T: DataConvertible> {
 
     private let _cache = NSCache<AnyObject, AnyObject>()
     private let _fileManager = FileManager()
-    private let _queue: DispatchQueue
     
     private var _allKeys: [String]?
 
@@ -38,9 +37,6 @@ public class Cache<T: DataConvertible> {
         self.name = name
         _cache.name = name
         
-        let qos = DispatchQoS(qosClass: .userInitiated, relativePriority: 0)
-        _queue = DispatchQueue(label: "\(domainIdentifier).diskQueue", qos: qos, attributes: .concurrent)
-
         if let directory = directory {
             cacheDirectory = directory
         }
@@ -87,15 +83,11 @@ public class Cache<T: DataConvertible> {
     // MARK: - Reading
 
     public func value(forKey key: String, allowingExpiredResult: Bool = false) -> T? {
-        var value: T?
-        
-        _queue.sync {
-            if let validValue = self._read(key), !validValue.expired || allowingExpiredResult {
-                value = validValue.value
-            }
+        if let validValue = _read(key), (!validValue.expired || allowingExpiredResult) {
+            return validValue.value
         }
         
-        return value
+        return nil
     }
     
     
@@ -104,30 +96,22 @@ public class Cache<T: DataConvertible> {
             return allKeys
         }
         
-        var refreshedKeys = [String]()
+        let urls = try? _fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil, options: [])
+        let refreshedKeys = urls?.flatMap { $0.deletingPathExtension().lastPathComponent } ?? []
         
-        _queue.sync(flags: .barrier) {
-            let urls = try? self._fileManager.contentsOfDirectory(at: self.cacheDirectory, includingPropertiesForKeys: nil, options: [])
-            refreshedKeys = urls?.flatMap { $0.deletingPathExtension().lastPathComponent } ?? []
-            
-            self._allKeys = refreshedKeys
-        }
+        _allKeys = refreshedKeys
         
         return refreshedKeys
     }
 
     public func allValues(_ allowingExpiredResults: Bool = false) -> [T] {
-        var values = [T]()
-
         let keys = allKeys()
         
-        _queue.sync {
-            let results = keys.flatMap { self._read($0) }
-            let filtered = allowingExpiredResults ? results : results.filter { !$0.expired }
+        let results = keys.flatMap { self._read($0) }
+        let filtered = allowingExpiredResults ? results : results.filter { !$0.expired }
             
-            values = filtered.flatMap { $0.value }
-        }
-
+        let values = filtered.flatMap { $0.value }
+        
         return values
     }
     
@@ -135,23 +119,25 @@ public class Cache<T: DataConvertible> {
     // MARK: - Writing
     
     public func set(_ value: T, forKey key: String, expiration: Expiration = .never) {
-        _queue.async(flags: .barrier) {
-            let cacheable = Cacheable(value: value, expirationDate: expiration.expirationDate)
-            self._write(cacheable, forKey: key)
-        }
+        let cacheable = Cacheable(value: value, expirationDate: expiration.expirationDate)
+        _write(cacheable, forKey: key)
     }
     
     
     // MARK: - Removing
 
     public func removeValueForKey(_ key: String) {
-        _queue.async(flags: .barrier) {
-            self._allKeys = nil
+        _allKeys = nil
             
-            self._cache.removeObject(forKey: NSString(string: key))
+        _cache.removeObject(forKey: NSString(string: key))
             
-            let url = self._urlForKey(key)
-            _ = try? self._fileManager.removeItem(at: url)
+        let url = _urlForKey(key)
+        
+        do {
+            try _fileManager.removeItem(at: url)
+        }
+        catch {
+            debugPrint(error)
         }
     }
     
@@ -181,9 +167,7 @@ public class Cache<T: DataConvertible> {
             let data = _fileManager.contents(atPath: path),
             let diskCacheable = Cacheable<T>(data: data) {
             
-            _queue.async(flags: .barrier) {
-                self._cache.setObject(diskCacheable as AnyObject, forKey: NSString(string: key))
-            }
+            _cache.setObject(diskCacheable as AnyObject, forKey: NSString(string: key))
             
             return diskCacheable
         }
@@ -221,11 +205,8 @@ public class Cache<T: DataConvertible> {
     // MARK: - Testing Helpers
     
     internal func _removeFromMemory(_ key: String) {
-        _queue.async(flags: .barrier) {
-            self._cache.removeObject(forKey: NSString(string: key))
-        }
+        _cache.removeObject(forKey: NSString(string: key))
     }
-
 }
 
 public struct CacheCleaner {
@@ -234,7 +215,11 @@ public struct CacheCleaner {
         let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         let cacheDirectory = url.appendingPathComponent(domainIdentifier)
         
-        _ = try? FileManager.default.removeItem(at: cacheDirectory)
+        do {
+            try FileManager.default.removeItem(at: cacheDirectory)
+        }
+        catch {
+            debugPrint(error)
+        }
     }
-    
 }
