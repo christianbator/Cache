@@ -76,11 +76,11 @@ let cachedVanilla = cache.valueForKey("vanilla", allowingExpiredResult: true)
 
 ### Threaded Access
 
-Cache is fully thread-safe, so feel free to `dispatch_async...` to your heart's content
+Cache is fully thread-safe:
 
 ```swift
-dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
-	cache["vanilla"] = IceCreamFlavor(name: "Vanilla")
+DispatchQueue.global(qos: .background).async {
+    cache["vanilla"] = IceCreamFlavor(name: "Vanilla")
 }
 ```
 
@@ -105,7 +105,7 @@ let allValidIceCreamFlavors = cache.allValues()
 let allIceCreamFlavors = cache.allValues(allowingExpiredResults: true)
 
 cache?.removeAllValues() // Removes all values from a given cache with a name
-CacheCleaner.purgeCache() // Removes all caches everywhere forever. Careful.
+CacheCleaner.purgeAll() // Removes all caches everywhere forever. Careful.
 ```
 
 ## Installation
