@@ -18,7 +18,6 @@ public enum CacheError: Error {
             return "Converting the dataConvertible to Data failed"
         }
     }
-    
 }
 
 private let domainIdentifier = "com.jcbator.cache"
@@ -79,7 +78,6 @@ public class Cache<T: DataConvertible> {
         }
     }
     
-    
     // MARK: - Reading
 
     public func value(forKey key: String, allowingExpiredResult: Bool = false) -> T? {
@@ -90,14 +88,13 @@ public class Cache<T: DataConvertible> {
         return nil
     }
     
-    
     public func allKeys() -> [String] {
         if let allKeys = _allKeys {
             return allKeys
         }
         
         let urls = try? _fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil, options: [])
-        let refreshedKeys = urls?.flatMap { $0.deletingPathExtension().lastPathComponent } ?? []
+        let refreshedKeys: [String] = urls?.flatMap { $0.deletingPathExtension().lastPathComponent } ?? []
         
         _allKeys = refreshedKeys
         
@@ -115,14 +112,12 @@ public class Cache<T: DataConvertible> {
         return values
     }
     
-    
     // MARK: - Writing
     
     public func set(_ value: T, forKey key: String, expiration: Expiration = .never) {
         let cacheable = Cacheable(value: value, expirationDate: expiration.expirationDate)
         _write(cacheable, forKey: key)
     }
-    
     
     // MARK: - Removing
 
@@ -152,7 +147,6 @@ public class Cache<T: DataConvertible> {
     public func removeAllValues() {
         allKeys().forEach(removeValueForKey)
     }
-
     
     // MARK: - Helpers
     
@@ -201,7 +195,6 @@ public class Cache<T: DataConvertible> {
         return key.replacingOccurrences(of: "[^a-zA-Z0-9_]+", with: "-", options: .regularExpression, range: nil)
     }
     
-    
     // MARK: - Testing Helpers
     
     internal func _removeFromMemory(_ key: String) {
@@ -211,7 +204,7 @@ public class Cache<T: DataConvertible> {
 
 public struct CacheCleaner {
     
-    public static func purgeCache() {
+    public static func purgeAll() {
         let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         let cacheDirectory = url.appendingPathComponent(domainIdentifier)
         

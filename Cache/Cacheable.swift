@@ -8,9 +8,7 @@
 
 import Foundation
 
-
 /// Cacheable is a value, expirationDate pair that is read from / written to disk
-
 struct Cacheable<T: DataConvertible> {
     
     let value: T
@@ -24,17 +22,13 @@ struct Cacheable<T: DataConvertible> {
         self.value = value
         self.expirationDate = expirationDate
     }
-    
 }
-
 
 // MARK: - Private
 
 private enum CacheKeys: String {
-    
     case value
     case expiration
-    
 }
 
 extension Cacheable: DataConvertible {
@@ -76,5 +70,4 @@ extension Cacheable: DataConvertible {
         
         return data
     }
-    
 }

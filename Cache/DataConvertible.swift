@@ -8,21 +8,15 @@
 
 import Foundation
 
-
 /// Conform to this protocol in order to be cached
-
 public protocol DataConvertible {
-    
     init?(data: Data)
     func asData() throws -> Data
-    
 }
-
 
 /// Convenience method for turning Data into [String : Any]?
 ///
 /// Usage: guard let dictionary = T.dictionary(with: data) else { ... } (where T: DataConvertible)
-
 public extension DataConvertible {
     
     public static func dictionary(with data: Data) -> [String : Any]? {
@@ -35,15 +29,12 @@ public extension DataConvertible {
         
         return dictionary
     }
-    
 }
-
 
 /// Adds DataConvertible conformance to an Array
 ///
 /// [Element: DataConvertible] -> [String] -> Data
 /// Data -> [String] -> [Element: DataConvertible]
-
 extension Array: DataConvertible {
 
     public init?(data: Data) {
@@ -88,10 +79,4 @@ extension Array: DataConvertible {
         
         return data
     }
-    
 }
-
-
-
-
-

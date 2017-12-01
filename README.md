@@ -1,15 +1,8 @@
 # Cache
 A simple Swift cache for fun and profit
 
-![Swift](https://img.shields.io/badge/Swift-3.0-orange.svg)
-![Platform](https://img.shields.io/badge/platform-iOS%209.0-lightgrey.svg)
+![Swift](https://img.shields.io/badge/Swift-4.0-orange.svg)
 ![Carthage](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)
-
-Cache is heavily inspired by [AwesomeCache](https://github.com/aschuch/AwesomeCache).
-Due to its type-safety and protocol-oriented design, Cache is tailored to model entities regardless of their being Swift value types or reference types (where `NSCoding` fails us 😞).
-
-Enjoy!
-
 
 ## Usage
 

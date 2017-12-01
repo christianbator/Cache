@@ -16,7 +16,7 @@ class CacheTests: XCTestCase {
     }
     
     override func tearDown() {
-        CacheCleaner.purgeCache()
+        CacheCleaner.purgeAll()
         super.tearDown()
     }
     
@@ -152,7 +152,7 @@ class CacheTests: XCTestCase {
     
     func randomStringWithLength(len: Int) -> String {
         let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        let length: UInt32 = UInt32(letters.characters.count)
+        let length: UInt32 = UInt32(letters.count)
         
         var randomString = ""
         

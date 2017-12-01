@@ -36,7 +36,6 @@ public enum Expiration {
             return date
         }
     }
-    
 }
 
 extension Date {
@@ -44,5 +43,4 @@ extension Date {
     var isInThePast: Bool {
         return timeIntervalSinceNow < 0
     }
-    
 }
