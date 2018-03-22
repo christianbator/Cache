@@ -115,7 +115,7 @@ CacheCleaner.purgeAll() // Removes all caches everywhere forever. Careful.
 Add the following line to your [Cartfile](https://github.com/Carthage/Carthage/blob/master/Documentation/Artifacts.md#cartfile).
 
 ```
-github "jcbator/Cache"
+github "christianbator/Cache"
 ```
 
 Then run 
