@@ -1,5 +1,5 @@
 # Cache
-A simple Swift cache for fun and profit
+Thread-safe, type-safe, on-disk cache for iOS.
 
 ![Swift](https://img.shields.io/badge/Swift-4.0-orange.svg)
 ![Carthage](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)
